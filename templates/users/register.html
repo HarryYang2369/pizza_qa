@@ -15,17 +15,22 @@
                     <form method="post">
                         {% csrf_token %}
                         {% bootstrap_form form %}
+                        
+                        {# Only show privacy notice for students #}
+                        {% if user_type == 'student' %}
                         <div class="alert alert-info mt-3">
                             <strong>Privacy Notice:</strong> 
                             Your real name will only be visible to teachers, not to other students.
                         </div>
+                        {% endif %}
+                        
                         <button type="submit" class="btn btn-primary w-100 mt-3">
                             Register
                         </button>
                     </form>
                     <div class="mt-3 text-center">
                         Already have an account? 
-                        <a href="{% url 'login' %}">Login here</a>
+                        <a href="{% url 'users:login' %}">Login here</a>
                     </div>
                 </div>
             </div>

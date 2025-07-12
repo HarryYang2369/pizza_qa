@@ -1,0 +1,57 @@
+{% extends "base/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Student Management</h1>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Student Accounts</h3>
+        </div>
+        
+        <div class="card-body">
+            {% if students %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Real Name</th>
+                            <th>Nickname</th>
+                            <th>Email</th>
+                            <th>Year</th>
+                            <th>Date Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.real_name }}</td>
+                            <td>{{ student.nickname }}</td>
+                            <td>{{ student.email }}</td>
+                            <td>{{ student.year }}</td>
+                            <td>{{ student.date_joined|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'users:delete_student' student.id %}" 
+                                   class="btn btn-sm btn-danger btn-delete"
+                                   data-name="{{ student.real_name }}">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No student accounts found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
