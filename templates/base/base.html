@@ -75,15 +75,27 @@
                             </span>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                            <a class="nav-link" href="{% url 'users:logout' %}">Logout</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                            <a class="nav-link" href="{% url 'users:login' %}">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register_student' %}">Register as Student</a>
+                            <a class="nav-link" href="{% url 'users:register_student' %}">Register as Student</a>
                         </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav me-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'qa:year_selection' %}">Classes</a>
+                        </li>
+                        {% if user.role == 'teacher' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:student_management' %}">Manage Students</a>
+                        </li>
+                        {% endif %}
                     {% endif %}
                 </ul>
             </div>
@@ -108,5 +120,20 @@
             © 2023 Pizza QA - School Question Platform
         </div>
     </footer>
+    <script>
+        // Confirm before deleting students
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+            
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const studentName = this.getAttribute('data-name');
+                    if (!confirm(`Are you sure you want to delete ${studentName}'s account? This cannot be undone.`)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+        </script>
 </body>
 </html>

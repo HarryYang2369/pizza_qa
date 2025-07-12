@@ -1,0 +1,32 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Confirm Deletion</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">
+                        Are you sure you want to delete the student account for:
+                    </p>
+                    <h4>{{ student.real_name }}</h4>
+                    <p><strong>Nickname:</strong> {{ student.nickname }}</p>
+                    <p><strong>Email:</strong> {{ student.email }}</p>
+                    <p><strong>Year:</strong> {{ student.year }}</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-danger">Yes, Delete Account</button>
+                            <a href="{% url 'users:student_management' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
