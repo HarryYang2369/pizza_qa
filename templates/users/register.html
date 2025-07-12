@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load django_bootstrap5 %}
+{% load bootstrap5 %}
 
 {% block content %}
 <div class="container mt-5">
@@ -15,10 +15,15 @@
                     <form method="post">
                         {% csrf_token %}
                         {% bootstrap_form form %}
+                        
+                        {# Only show privacy notice for students #}
+                        {% if user_type == 'student' %}
                         <div class="alert alert-info mt-3">
                             <strong>Privacy Notice:</strong> 
                             Your real name will only be visible to teachers, not to other students.
                         </div>
+                        {% endif %}
+                        
                         <button type="submit" class="btn btn-primary w-100 mt-3">
                             Register
                         </button>
