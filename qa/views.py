@@ -14,15 +14,18 @@ def year_selection(request):
 def class_qa(request, year_id):
     year = get_object_or_404(YearGroup, id=year_id)
     
-    # Students can only see non-teacher-only questions in their year
-    # Teachers can see all questions
     if request.user.role == 'student':
+        # Show: 
+        # 1. Public questions (visible_to_teachers=False)
+        # 2. Teacher-only questions that belong to the current student
         questions = Question.objects.filter(
-            year_group=year,
-            visible_to_teachers=False
-        )
+            Q(year_group=year) &
+            (Q(visible_to_teachers=False) | 
+             Q(visible_to_teachers=True, student=request.user))
+        ).order_by('-created_at')
     else:
-        questions = Question.objects.filter(year_group=year)
+        # Teachers see all questions
+        questions = Question.objects.filter(year_group=year).order_by('-created_at')
     
     context = {'year': year, 'questions': questions}
     return render(request, 'qa/class_qa.html', context)
@@ -51,7 +54,7 @@ def question_detail(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     
     # Security check: Students can only see their own teacher-only questions
-    if request.user.role == 'student' and question.visible_to_teachers:
+    if request.user.role == 'student' and question.visible_to_teachers and question.student!= request.user:
         if question.student != request.user:
             messages.error(request, "You don't have permission to view this question.")
             return redirect('qa:year_selection')
