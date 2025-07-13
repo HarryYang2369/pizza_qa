@@ -75,8 +75,7 @@ def teacher_check(user):
 @login_required
 @user_passes_test(teacher_check, login_url='login')
 def student_management(request):
-    """View for teachers to manage student accounts"""
-    students = CustomUser.objects.filter(role='student').order_by('year', 'real_name')
+    students = CustomUser.objects.filter(role='student').order_by('id')
     context = {'students': students}
     return render(request, 'users/student_management.html', context)
 

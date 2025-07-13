@@ -53,11 +53,11 @@
                             {% endif %}
                         </button>
                     </form>
-                    {% endif %}
-                    
-                    {% if request.user == question.student %}
                     <a href="{% url 'qa:edit_question' question.id %}" class="btn btn-sm btn-outline-primary">
                         Edit Question
+                    </a>
+                    <a href="{% url 'qa:delete_question' question.id %}" class="btn btn-sm btn-outline-danger">
+                        Delete Question
                     </a>
                     {% endif %}
                 </div>
@@ -73,17 +73,13 @@
             <div class="d-flex justify-content-between mb-2">
                 <div>
                     {% if answer.user.role == 'teacher' %}
-                    <strong>{{ answer.user.real_name }} (Teacher)</strong>
-                    {% elif not answer.anonymous or request.user.role == 'teacher' %}
-                    <strong>
-                        {% if request.user.role == 'teacher' %}
-                        {{ answer.user.real_name }} ({{ answer.user.nickname }})
-                        {% else %}
-                        {{ answer.user.nickname }}
-                        {% endif %}
-                    </strong>
+                        <strong>{{ answer.user.real_name }} (Teacher)</strong>
+                    {% elif request.user.role == 'teacher' %}
+                        <strong>
+                            {{ answer.user.real_name }} ({{ answer.user.nickname }})
+                        </strong>
                     {% else %}
-                    <strong>Anonymous Student</strong>
+                        <strong>{{ answer.user.nickname }}</strong>
                     {% endif %}
                 </div>
                 <small class="text-muted">{{ answer.created_at|timesince }} ago</small>
@@ -96,6 +92,14 @@
                 <img src="{{ answer.image.url }}" class="img-fluid rounded" alt="Answer image" style="max-height: 200px;">
             </div>
             {% endif %}
+            <div class="mt-3 d-flex justify-content-between">
+                <div>
+                    {% if request.user == answer.user or request.user.role == 'teacher' %}
+                    <a href="{% url 'qa:edit_answer' answer.id %}" class="btn btn-sm btn-outline-primary me-2">Edit</a>
+                    <a href="{% url 'qa:delete_answer' answer.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
     {% empty %}

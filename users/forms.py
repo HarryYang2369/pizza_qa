@@ -5,12 +5,16 @@ from .models import CustomUser
 class StudentRegistrationForm(UserCreationForm):
     real_name = forms.CharField(max_length=100, label="Full Name")
     email = forms.EmailField(label="School Email")
-    year = forms.IntegerField(
-        min_value=9, 
-        max_value=12,
-        label="Year of Study",
-        help_text="(9-12)"
-    )
+    YEAR_CHOICES = [
+        ('8', 'Year 8'),
+        ('9', 'Year 9'),
+        ('10', 'Year 10'),
+        ('11', 'Year 11'),
+        ('12', 'Year 12'),
+    ]
+    
+    year = forms.ChoiceField(choices=YEAR_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+    
     password1 = forms.CharField(
         label="Password",
         strip=False,

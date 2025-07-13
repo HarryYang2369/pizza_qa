@@ -10,37 +10,37 @@
     </div>
     
     {% if questions %}
-    <div class="list-group">
-        {% for question in questions %}
-        <a href="{% url 'qa:question_detail' question.id %}" 
-           class="list-group-item list-group-item-action {% if question.visible_to_teachers %}teacher-only{% endif %}">
-            <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">
-                    {{ question.title }}
-                    {% if question.visible_to_teachers %}
-                    <span class="badge bg-danger">Teachers Only</span>
-                    {% endif %}
-                    {% if question.resolved %}
-                    <span class="badge bg-success">Resolved</span>
-                    {% endif %}
-                </h5>
-                <small>{{ question.created_at|timesince }} ago</small>
-            </div>
-            <p class="mb-1">{{ question.description|truncatewords:20 }}</p>
-            <small>
-                {% if request.user.role == 'teacher' %}
-                By: {{ question.student.real_name }} ({{ question.student.nickname }})
-                {% else %}
-                By: {{ question.student.nickname }}
-                {% endif %}
-            </small>
-        </a>
-        {% endfor %}
-    </div>
+        <div class="list-group">
+            {% for question in questions %}
+                <a href="{% url 'qa:question_detail' question.id %}" 
+                   class="list-group-item list-group-item-action {% if question.visible_to_teachers %}teacher-only{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">
+                            {{ question.title }}
+                            {% if question.visible_to_teachers %}
+                                <span class="badge bg-danger">Teachers Only</span>
+                            {% endif %}
+                            {% if question.resolved %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% endif %}
+                        </h5>
+                        <small>{{ question.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ question.description|truncatewords:20 }}</p>
+                    <small>
+                        {% if request.user.role == 'teacher' %}
+                        By: {{ question.student.real_name }} ({{ question.student.nickname }})
+                        {% else %}
+                        By: {{ question.student.nickname }}
+                        {% endif %}
+                    </small>
+                </a>
+            {% endfor %}
+        </div>
     {% else %}
-    <div class="alert alert-info">
-        No questions have been asked yet. Be the first to ask!
-    </div>
+        <div class="alert alert-info">
+            No questions have been asked yet. Be the first to ask!
+        </div>
     {% endif %}
 </div>
 {% endblock %}
