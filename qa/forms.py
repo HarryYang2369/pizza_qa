@@ -16,10 +16,7 @@ class QuestionForm(forms.ModelForm):
 class AnswerForm(forms.ModelForm):
     class Meta:
         model = Answer
-        fields = ['text', 'image', 'anonymous']
+        fields = ['text', 'image']
         widgets = {
             'text': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your answer here...'}),
-        }
-        labels = {
-            'anonymous': 'Post anonymously'
         }

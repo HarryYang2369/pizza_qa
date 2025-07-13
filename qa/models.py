@@ -7,7 +7,7 @@ class YearGroup(models.Model):
     
     def __str__(self):
         return f"Year {self.year}"
-
+    
 class Question(models.Model):
     title = models.CharField(max_length=200)
     tag = models.CharField(max_length=50, blank=True)
@@ -22,6 +22,10 @@ class Question(models.Model):
     def __str__(self):
         return self.title
     
+    def can_edit_delete(self, user):
+        """Check if the user can edit or delete this question."""
+        return user == self.student or user.role == 'teacher'
+    
     class Meta:
         ordering = ['-created_at']
 
@@ -31,10 +35,13 @@ class Answer(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    anonymous = models.BooleanField(default=True)
     
     def __str__(self):
         return f"Answer to {self.question.title}"
     
+    def can_edit_delete(self, user):
+        """Check if the user can edit or delete this answer."""
+        return user == self.user or user.role == 'teacher'
+    
     class Meta:
-        ordering = ['created_at']
+        ordering = ['-created_at']

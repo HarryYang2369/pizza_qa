@@ -27,6 +27,9 @@ class StudentRegistrationForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ('real_name', 'email', 'year', 'password1', 'password2')
+        widgets = {
+            'year': forms.NumberInput(attrs={'min': 9, 'max': 12}),
+        }
         
     def save(self, commit=True):
         user = super().save(commit=False)

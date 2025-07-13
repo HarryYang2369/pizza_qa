@@ -93,9 +93,9 @@ def mark_resolved(request, question_id):
 def edit_question(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     
-    # Only the student who asked can edit
-    if request.user != question.student:
-        messages.error(request, "You can only edit your own questions.")
+    # Permission check
+    if not question.can_edit_delete(request.user):
+        messages.error(request, "You don't have permission to edit this question.")
         return redirect('qa:question_detail', question_id=question_id)
     
     if request.method == 'POST':
@@ -110,4 +110,60 @@ def edit_question(request, question_id):
     context = {'form': form, 'question': question}
     return render(request, 'qa/edit_question.html', context)
 
-# When I logged in as student, I try to click Ask Question button. It does not work in any year section. After clicking the button it always shows [11/Jul/2025 09:18:54] "GET /qa/ask/3/ HTTP/1.1" 200 3656 and keep on the same page after a flicker, is there something with the ask_question.html or ask_question() function in views.html?
+@login_required
+def delete_question(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    
+    # Permission check
+    if not question.can_edit_delete(request.user):
+        messages.error(request, "You don't have permission to delete this question.")
+        return redirect('qa:question_detail', question_id=question_id)
+    
+    if request.method == 'POST':
+        year_id = question.year_group.id
+        question.delete()
+        messages.success(request, "Question has been deleted.")
+        return redirect('qa:class_qa', year_id=year_id)
+    
+    context = {'question': question}
+    return render(request, 'qa/confirm_delete_question.html', context)
+
+@login_required
+def edit_answer(request, answer_id):
+    answer = get_object_or_404(Answer, id=answer_id)
+    question = answer.question
+    
+    # Permission check
+    if not answer.can_edit_delete(request.user):
+        messages.error(request, "You don't have permission to edit this answer.")
+        return redirect('qa:question_detail', question_id=question.id)
+    
+    if request.method == 'POST':
+        form = AnswerForm(request.POST, request.FILES, instance=answer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Answer updated successfully!")
+            return redirect('qa:question_detail', question_id=question.id)
+    else:
+        form = AnswerForm(instance=answer)
+    
+    context = {'form': form, 'answer': answer, 'question': question}
+    return render(request, 'qa/edit_answer.html', context)
+
+@login_required
+def delete_answer(request, answer_id):
+    answer = get_object_or_404(Answer, id=answer_id)
+    question = answer.question
+    
+    # Permission check
+    if not answer.can_edit_delete(request.user):
+        messages.error(request, "You don't have permission to delete this answer.")
+        return redirect('qa:question_detail', question_id=question.id)
+    
+    if request.method == 'POST':
+        answer.delete()
+        messages.success(request, "Answer has been deleted.")
+        return redirect('qa:question_detail', question_id=question.id)
+    
+    context = {'answer': answer, 'question': question}
+    return render(request, 'qa/confirm_delete_answer.html', context)

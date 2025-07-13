@@ -31,9 +31,8 @@ class QuestionAdmin(admin.ModelAdmin):
     raw_id_fields = ('student',)
 
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ('truncated_text', 'user', 'question', 'created_at', 'anonymous')
+    list_display = ('truncated_text', 'user', 'question', 'created_at')
     search_fields = ('text',)
-    list_filter = ('anonymous',)
     raw_id_fields = ('user', 'question')
     
     def truncated_text(self, obj):
