@@ -52,6 +52,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             self.nickname = f"Student_{self.id}"
             # Save just the nickname field to avoid recursion
             self.save(update_fields=['nickname'])
+    
+    def get_available_subjects(self):
+        """Get subjects available for the user based on their role."""
+        if self.role == 'teacher':
+            return self.taught_subjects.all()
+        elif self.role == 'student':
+            return self.enrolled_subjects.all()
+        return []
 
 @receiver(post_save, sender=CustomUser)
 def set_student_nickname(sender, instance, created, **kwargs):

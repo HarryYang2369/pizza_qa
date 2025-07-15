@@ -52,7 +52,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'qa:year_selection' %}">Pizza QA</a>
+            <a class="navbar-brand" href="{% url 'qa:subject_selection' %}">Pizza QA</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -60,7 +60,7 @@
                 <ul class="navbar-nav me-auto">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'qa:year_selection' %}">Classes</a>
+                            <a class="nav-link" href="{% url 'qa:subject_selection' %}">My Subjects</a>
                         </li>
                     {% endif %}
                 </ul>

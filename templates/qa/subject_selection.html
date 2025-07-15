@@ -1,0 +1,59 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h1>Your Subjects</h1>
+        <p class="lead">Select a subject to view questions</p>
+        
+        {% if user.role == 'teacher' %}
+        <a href="{% url 'qa:manage_teacher_subjects' %}" class="btn btn-outline-primary">
+            <i class="bi bi-gear"></i> Manage Subjects
+        </a>
+        {% else %}
+        <a href="{% url 'qa:manage_student_subjects' %}" class="btn btn-outline-primary">
+            <i class="bi bi-gear"></i> Manage Subjects
+        </a>
+        {% endif %}
+    </div>
+    
+    {% for year, subjects in subjects_by_year.items %}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2>Year {{ year.year }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for subject in subjects %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">
+                                {{ subject.subject }}
+                                {% if user.role == 'student' %}
+                                <small class="d-block text-muted">Taught by: {{ subject.teacher.real_name }}</small>
+                                {% endif %}
+                            </h3>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'qa:subject_qa' subject.id %}" class="btn btn-primary w-100">
+                                View Questions
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-warning">
+        {% if user.role == 'teacher' %}
+        You haven't added any subjects yet. Please add subjects you teach.
+        {% else %}
+        You haven't enrolled in any subjects yet. Please add subjects you're taking.
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
