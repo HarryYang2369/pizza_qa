@@ -54,7 +54,10 @@ def ask_question(request, subject_id):
 @login_required
 def question_detail(request, question_id):
     question = get_object_or_404(Question, id=question_id)
-    
+    if request.user.role == 'teacher':
+        subject = get_object_or_404(TeacherSubject, subject=question.subject, teacher=request.user)
+    else:
+        subject = get_object_or_404(StudentSubject, subject=question.subject, student=request.user)
     # Security check: Students can only see their own teacher-only questions
     if request.user.role == 'student' and question.visible_to_teachers and question.student!= request.user:
         if question.student != request.user:
@@ -77,7 +80,8 @@ def question_detail(request, question_id):
     context = {
         'question': question,
         'answers': answers,
-        'form': form
+        'form': form,
+        'subject': subject
     }
     return render(request, 'qa/question_detail.html', context)
 
@@ -246,20 +250,7 @@ def subject_selection(request):
     """Show subjects available to the current user"""
     subjects = request.user.get_available_subjects()
     
-    # Organize by year
-    subjects_by_year = {}
-    for subject in subjects:
-        if request.user.role == 'teacher':
-            year = subject.year
-        else:
-            year = subject.year
-        
-        if year not in subjects_by_year:
-            subjects_by_year[year] = []
-        
-        subjects_by_year[year].append(subject)
-    
-    context = {'subjects_by_year': subjects_by_year}
+    context = {'subjects': subjects}
     return render(request, 'qa/subject_selection.html', context)
 
 @login_required
@@ -273,7 +264,7 @@ def subject_qa(request, subject_id):
     # Get questions for this subject and year
     questions = Question.objects.filter(
         subject=subject.subject,
-        year_group=subject.year
+        
     ).order_by('-created_at')
     
     context = {

@@ -74,7 +74,7 @@ class TeacherSubject(models.Model):
         unique_together = ('teacher', 'year', 'subject')
     
     def __str__(self):
-        return f"{self.teacher.real_name} - Year {self.year.year} {self.subject}"
+        return f"Year {self.year.year} {self.subject}"
 
 class StudentSubject(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='enrolled_subjects')
@@ -86,7 +86,7 @@ class StudentSubject(models.Model):
         unique_together = ('student', 'year', 'subject')
     
     def __str__(self):
-        return f"{self.student.nickname} - Year {self.year.year} {self.subject}"
+        return f"{self.subject} (Taught by: {self.teacher.real_name})"
     
 class Question(models.Model):
     title = models.CharField(max_length=200)
