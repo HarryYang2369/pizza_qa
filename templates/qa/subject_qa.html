@@ -3,9 +3,12 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Year {{ year.year }} Questions</h1>
-        <a href="{% url 'qa:ask_question' year.id %}" class="btn btn-success">
+        <h1>{{ subject }} Questions</h1>
+        <a href="{% url 'qa:ask_question' subject.id %}" class="btn btn-success">
             <i class="bi bi-plus-circle"></i> Ask Question
+        </a>
+        <a href="{% url 'qa:subject_selection' %}" class="btn btn-outline-secondary">
+            Back to Subjects
         </a>
     </div>
     

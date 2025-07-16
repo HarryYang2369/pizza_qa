@@ -14,7 +14,7 @@ def register_student(request):
             user = form.save()
             login(request, user)
             messages.success(request, "Registration successful!")
-            return redirect('qa:year_selection')
+            return redirect('qa:subject_selection')
     else:
         form = StudentRegistrationForm()
     
@@ -31,7 +31,7 @@ def register_student(request):
 #             user = form.save()
 #             login(request, user)
 #             messages.success(request, "Registration successful!")
-#             return redirect('qa:year_selection')
+#             return redirect('qa:subject_selection')
 #     else:
 #         form = TeacherRegistrationForm()
     
@@ -52,7 +52,7 @@ def user_login(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, "Login successful!")
-                return redirect('qa:year_selection')
+                return redirect('qa:subject_selection')
             else:
                 messages.error(request, "Invalid email or password.")
     else:

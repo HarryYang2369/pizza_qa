@@ -76,7 +76,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 LOGIN_URL = '/users/login/'
-LOGIN_REDIRECT_URL = 'qa:year_selection'
+LOGIN_REDIRECT_URL = 'qa:subject_selection'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
