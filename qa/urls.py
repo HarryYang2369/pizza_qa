@@ -10,6 +10,7 @@ urlpatterns = [
     path('resolve/<int:question_id>/', views.mark_resolved, name='mark_resolved'),
     path('edit-question/<int:question_id>/', views.edit_question, name='edit_question'),
     path('delete-question/<int:question_id>/', views.delete_question, name='delete_question'),
+    path('get_teachers/', views.get_teachers, name='get_teachers'),
     
     # Answer management
     path('edit-answer/<int:answer_id>/', views.edit_answer, name='edit_answer'),
@@ -19,5 +20,9 @@ urlpatterns = [
     path('teacher-subjects/', views.manage_teacher_subjects, name='manage_teacher_subjects'),
     path('student-subjects/', views.manage_student_subjects, name='manage_student_subjects'),
     
-    path('get_teachers/', views.get_teachers, name='get_teachers'),
+    # Good management
+    path('good-question/<int:question_id>/', views.good_question, name='good_question'),
+    path('good-answer/<int:answer_id>/', views.good_answer, name='good_answer'),
+    path('set-good-question/<int:question_id>/', views.set_good_question, name='set_good_question'),
+    path('set-good-answer/<int:answer_id>/', views.set_good_answer, name='set_good_answer'),
 ]

@@ -5,6 +5,9 @@ from django.db.models import Q
 from .models import YearGroup, Question, Answer, TeacherSubject, StudentSubject
 from .forms import QuestionForm, AnswerForm, TeacherSubjectForm, StudentSubjectForm, Subject
 from django.http import JsonResponse
+from django.db import IntegrityError
+from .models import GoodQuestionMark
+from .models import GoodAnswerMark
 
 # @login_required
 # def year_selection(request):
@@ -300,3 +303,100 @@ def get_teachers(request):
     
     except (YearGroup.DoesNotExist, Subject.DoesNotExist):
         return JsonResponse({'teachers': []})
+
+@login_required
+def good_question(request, question_id):
+    """Allow each user to mark a question as good only once."""
+    question = get_object_or_404(Question, id=question_id)
+    # Assume there is a model GoodQuestionMark(user, question, unique_together)
+
+    if request.method == 'POST':
+        try:
+            GoodQuestionMark.objects.create(user=request.user, question=question)
+            question.good_num = (question.good_num or 0) + 1
+            question.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'good_num': question.good_num, 'marked': True})
+            messages.success(request, "You have marked this question as a good question!")
+        except IntegrityError:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'good_num': question.good_num, 'marked': False, 'error': 'Already marked'})
+            messages.warning(request, "You have already marked this question as a good question.")
+        return redirect('qa:question_detail', question_id=question_id)
+    return redirect('qa:question_detail', question_id=question_id)
+
+@login_required
+def good_answer(request, answer_id):
+    """Allow each user to mark an answer as good only once."""
+    answer = get_object_or_404(Answer, id=answer_id)
+    # Assume there is a model GoodAnswerMark(user, answer, unique_together)
+
+    if request.method == 'POST':
+        try:
+            GoodAnswerMark.objects.create(user=request.user, answer=answer)
+            answer.good_num = (answer.good_num or 0) + 1
+            answer.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'good_num': answer.good_num, 'marked': True})
+            messages.success(request, "You have marked this answer as a good answer!")
+        except IntegrityError:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'good_num': answer.good_num, 'marked': False, 'error': 'Already marked'})
+            messages.warning(request, "You have already marked this answer as an good answer.")
+        return redirect('qa:question_detail', question_id=answer.question.id)
+    return redirect('qa:question_detail', question_id=answer.question.id)
+
+@login_required
+def set_good_question(request, question_id):
+    """Allow only teachers to mark a question as 'good' (set good=True) and reward the student.
+    Can only be set once and cannot be unset or set again by any teacher.
+    """
+    question = get_object_or_404(Question, id=question_id)
+    if request.user.role == 'teacher':
+        if question.good:
+            messages.warning(request, "This question has already been marked as a good question and cannot be changed.")
+            return redirect('qa:question_detail', question_id=question_id)
+        question.good = True
+        question.save()
+        # Reward the student who asked the question
+        student = question.student
+        if hasattr(student, 'num_good_question'):
+            student.num_good_question = (student.num_good_question or 0) + 1
+        else:
+            student.num_good_question = 1
+        if hasattr(student, 'credit'):
+            student.credit = (student.credit or 0) + 1
+        else:
+            student.credit = 1
+        student.save()
+        messages.success(request, "Question marked as a good question!")
+        return redirect('qa:question_detail', question_id=question_id)
+    return redirect('qa:question_detail', question_id=question_id)
+
+@login_required
+def set_good_answer(request, answer_id):
+    """Allow only teachers to mark an answer as 'good' (set good=True) and reward the student.
+    Can only be set once and cannot be changed or unset by any teacher.
+    """
+    answer = get_object_or_404(Answer, id=answer_id)
+    if request.user.role == 'teacher':
+        if answer.good:
+            messages.warning(request, "This answer has already been marked as a good answer and cannot be changed.")
+            return redirect('qa:question_detail', question_id=answer.question.id)
+        answer.good = True
+        answer.save()
+        # Reward the student who posted the answer
+        student = answer.user
+        if hasattr(student, 'num_good_answer'):
+            student.num_good_answer = (student.num_good_answer or 0) + 1
+        else:
+            student.num_good_answer = 1
+        if hasattr(student, 'credit'):
+            student.credit = (student.credit or 0) + 2
+        else:
+            student.credit = 2
+        student.save()
+        messages.success(request, "Answer marked as a good answer!")
+        return redirect('qa:question_detail', question_id=answer.question.id)
+    return redirect('qa:question_detail', question_id=answer.question.id)
+

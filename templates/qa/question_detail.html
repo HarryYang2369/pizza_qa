@@ -43,7 +43,19 @@
             {{ question.student.nickname }}
           {% endif %}
         </div>
-        
+        <div>
+          <form method="post" action="{% url 'qa:good_question' question.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+              Good Question! {{ question.good_num }}
+            </button>
+          </form>
+        </div>
+          {% if request.user.role == 'teacher' %}
+            <a href="{% url 'qa:set_good_question' question.id %}" class="btn btn-outline-success btn-sm">
+              Set to Good Question
+            </a>
+          {% endif %}
         <div>
           {% if request.user == question.student or request.user.role == 'teacher' %}
             <form method="post" action="{% url 'qa:mark_resolved' question.id %}" class="d-inline">
@@ -103,6 +115,19 @@
             {% endif %}
           </div>
         </div>
+        <div class="mt-2">
+          <form method="post" action="{% url 'qa:good_answer' answer.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+              Good Answer! {{ answer.good_num }}
+            </button>
+          </form>
+          {% if request.user.role == 'teacher' %}
+            <a href="{% url 'qa:set_good_answer' answer.id %}" class="btn btn-outline-success btn-sm">
+              Set to Good Answer
+            </a>
+          {% endif %}
+          </div>
       </div>
     </div>
     {% empty %}

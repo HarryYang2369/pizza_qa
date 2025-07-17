@@ -99,6 +99,8 @@ class Question(models.Model):
     year_group = models.ForeignKey(YearGroup, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='questions')
+    good = models.BooleanField(default=False)
+    good_num = models.IntegerField(default=0)
     
     def __str__(self):
         return self.title
@@ -116,6 +118,8 @@ class Answer(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    good = models.BooleanField(default=False)
+    good_num = models.IntegerField(default=0)
     
     def __str__(self):
         return f"Answer to {self.question.title}"
@@ -126,3 +130,23 @@ class Answer(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+        
+class GoodQuestionMark(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='good_marks')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ('question', 'user')
+    
+    def __str__(self):
+        return f"{self.user.nickname} marked {self.question.title} as a good question"
+    
+class GoodAnswerMark(models.Model):
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='good_marks')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ('answer', 'user')
+    
+    def __str__(self):
+        return f"{self.user.nickname} marked an answer to {self.answer.question.title} as a good answer"
