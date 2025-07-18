@@ -50,7 +50,8 @@ def ask_question(request, subject_id):
             return redirect('qa:subject_qa', subject_id=subject.id)
     else:
         form = QuestionForm()
-    
+    request.user.num_questions_asked += 1
+    request.user.save()
     context = {'form': form, 'subject': subject}
     return render(request, 'qa/ask_question.html', context)
 
@@ -78,6 +79,8 @@ def question_detail(request, question_id):
             answer.user = request.user
             answer.save()
             messages.success(request, "Your answer has been posted!")
+            request.user.num_answers_given += 1
+            request.user.save()
             return redirect('qa:question_detail', question_id=question_id)
     
     context = {
@@ -91,14 +94,20 @@ def question_detail(request, question_id):
 @login_required
 def mark_resolved(request, question_id):
     question = get_object_or_404(Question, id=question_id)
-    
+    student = question.student
+
     # Only student who asked or teacher can mark resolved
-    if request.user == question.student or request.user.role == 'teacher':
+    if request.user == student or request.user.role == 'teacher':
         question.resolved = not question.resolved
         question.save()
+        if hasattr(student, 'num_question_resolved'):
+            if question.resolved:
+                student.num_question_resolved = (student.num_question_resolved or 0) + 1
+            else:
+                student.num_question_resolved = max((student.num_question_resolved or 1) - 1, 0)
+            student.save()
         status = "resolved" if question.resolved else "unresolved"
         messages.success(request, f"Question marked as {status}!")
-    
     return redirect('qa:question_detail', question_id=question_id)
 
 @login_required
@@ -132,10 +141,28 @@ def delete_question(request, question_id):
         return redirect('qa:question_detail', question_id=question_id)
     
     if request.method == 'POST':
-        year_id = question.year_group.id
+        subject_id = None
+        if hasattr(question, 'subject') and hasattr(question, 'year_group'):
+            # Try to get subject_id for redirect
+            try:
+                subject_obj = StudentSubject.objects.filter(
+                    student=question.student, subject=question.subject, year=question.year_group
+                ).first()
+                if subject_obj:
+                    subject_id = subject_obj.id
+            except Exception:
+                subject_id = None
+        # Decrement num_questions_asked for the student
+        student = question.student
+        if hasattr(student, 'num_questions_asked') and student.num_questions_asked:
+            student.num_questions_asked = max(student.num_questions_asked - 1, 0)
+            student.save()
         question.delete()
         messages.success(request, "Question has been deleted.")
-        return redirect('qa:subject_qa', year_id=year_id)
+        if subject_id:
+            return redirect('qa:subject_qa', subject_id=subject_id)
+        else:
+            return redirect('qa:subject_selection')
     
     context = {'question': question}
     return render(request, 'qa/confirm_delete_question.html', context)
@@ -166,17 +193,22 @@ def edit_answer(request, answer_id):
 def delete_answer(request, answer_id):
     answer = get_object_or_404(Answer, id=answer_id)
     question = answer.question
-    
+
     # Permission check
     if not answer.can_edit_delete(request.user):
         messages.error(request, "You don't have permission to delete this answer.")
         return redirect('qa:question_detail', question_id=question.id)
-    
+
     if request.method == 'POST':
+        # Decrement num_answers_given for the student if applicable
+        student = answer.user
+        if hasattr(student, 'num_answers_given') and student.num_answers_given:
+            student.num_answers_given = max(student.num_answers_given - 1, 0)
+            student.save()
         answer.delete()
         messages.success(request, "Answer has been deleted.")
         return redirect('qa:question_detail', question_id=question.id)
-    
+
     context = {'answer': answer, 'question': question}
     return render(request, 'qa/confirm_delete_answer.html', context)
 
