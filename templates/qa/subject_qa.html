@@ -38,6 +38,9 @@
                 {% if question.resolved %}
                   <span class="badge bg-success">Resolved</span>
                 {% endif %}
+                {% if question.good %}
+                  <span class="badge bg-warning">Good Question</span>
+                {% endif %}
                 </h5>
                 <small>{{ question.created_at|timesince }} ago</small>
               </div>
@@ -69,6 +72,9 @@
                   {% endif %}
                   {% if question.resolved %}
                     <span class="badge bg-success">Resolved</span>
+                  {% endif %}
+                  {% if question.good %}
+                    <span class="badge bg-warning">Good Question</span>
                   {% endif %}
                 </h5>
                 <small>{{ question.created_at|timesince }} ago</small>

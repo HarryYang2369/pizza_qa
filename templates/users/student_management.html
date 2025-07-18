@@ -23,7 +23,7 @@
                             <th>Email</th>
                             <th>Year</th>
                             <th>Date Joined</th>
-                            <th>Actions</th>
+                            <th>Credits</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,6 +34,7 @@
                             <td>{{ student.email }}</td>
                             <td>{{ student.year }}</td>
                             <td>{{ student.date_joined|date:"M d, Y" }}</td>
+                            <td>{{ student.credit }}</td>
                             <td>
                                 <a href="{% url 'users:delete_student' student.id %}" 
                                    class="btn btn-sm btn-danger btn-delete"

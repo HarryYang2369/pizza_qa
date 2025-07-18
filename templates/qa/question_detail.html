@@ -9,6 +9,9 @@
       {% if question.resolved %}
         <span class="resolved-badge">Resolved</span>
       {% endif %}
+      {% if question.good %}
+        <span class="good-badge">Good Question</span>
+      {% endif %}
       <a href="{% url 'qa:subject_qa' subject.id %}" class="btn btn-outline-secondary btn-sm">
         Back
       </a>
@@ -97,6 +100,9 @@
               <strong>{{ answer.user.nickname }}</strong>
             {% endif %}
           </div>
+          {% if answer.good %}
+            <span class="badge bg-success">Good Answer</span>
+          {% endif %}
           <small class="text-muted">{{ answer.created_at|timesince }} ago</small>
         </div>
         
