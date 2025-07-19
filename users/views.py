@@ -212,8 +212,14 @@ def manage_questions(request, question_type):
 
 @login_required
 def student_questions(request):
-    subjects = StudentSubject.objects.filter(student=request.user).annotate(
-        question_count=Count('student__questions', filter=Q(student__questions__subject=OuterRef('subject'))))
+    subjects = StudentSubject.objects.filter(student=request.user)
+    # Add question count to each subject with a different name
+    for subject in subjects:
+        subject.question_count_value = Question.objects.filter(
+            student=request.user,
+            subject=subject.subject
+        ).count()
+    
     context = {'subjects': subjects}
     return render(request, 'users/student_questions.html', context)
 
