@@ -1,0 +1,64 @@
+<!-- templates/users/manage_questions.html -->
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ title }}</h1>
+        <a href="{% url 'users:user_profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if resolved == 'false' %}active{% endif %}" 
+                       href="?resolved=false">
+                        Unresolved
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if resolved == 'true' %}active{% endif %}" 
+                       href="?resolved=true">
+                        Resolved
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if resolved == None %}active{% endif %}" 
+                       href="?">
+                        All Questions
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            {% if questions %}
+            <div class="list-group">
+                {% for question in questions %}
+                <a href="{% url 'qa:question_detail' question.id %}" 
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ question.title }}</h5>
+                        <small>{{ question.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ question.description|truncatewords:20 }}</p>
+                    <small>
+                        Asked by: 
+                        {% if request.user.role == 'teacher' %}
+                            {{ question.student.real_name }} ({{ question.student.nickname }})
+                        {% else %}
+                            {{ question.student.nickname }}
+                        {% endif %}
+                    </small>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No questions found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

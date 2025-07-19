@@ -75,6 +75,14 @@ class TeacherSubject(models.Model):
     
     def __str__(self):
         return f"Year {self.year.year} {self.subject}"
+    
+    @property
+    def student_count(self):
+        return StudentSubject.objects.filter(
+            subject=self.subject,
+            year=self.year,
+            teacher=self.teacher
+        ).count()
 
 class StudentSubject(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='enrolled_subjects')
@@ -87,6 +95,13 @@ class StudentSubject(models.Model):
     
     def __str__(self):
         return f"{self.subject} (Taught by: {self.teacher.real_name})"
+    
+    @property
+    def question_count(self):
+        return Question.objects.filter(
+            student=self.student,
+            subject=self.subject
+        ).count()
     
 class Question(models.Model):
     title = models.CharField(max_length=200)

@@ -1,0 +1,41 @@
+<!-- templates/users/student_subject_questions.html -->
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Your Questions - {{ subject }}</h1>
+        <a href="{% url 'users:student_questions' %}" class="btn btn-outline-secondary">Back to Subjects</a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if questions %}
+            <div class="list-group">
+                {% for question in questions %}
+                <a href="{% url 'qa:question_detail' question.id %}" 
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ question.title }}</h5>
+                        <small>
+                            {% if question.resolved %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% else %}
+                                <span class="badge bg-warning">Unresolved</span>
+                            {% endif %}
+                        </small>
+                    </div>
+                    <p class="mb-1">{{ question.description|truncatewords:20 }}</p>
+                    <small>{{ question.created_at|date:"M d, Y" }}</small>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                You haven't asked any questions in this subject yet.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

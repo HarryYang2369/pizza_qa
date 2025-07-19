@@ -1,0 +1,55 @@
+<!-- templates/users/manage_students_in_subject.html -->
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Manage Students - {{ teacher_subject.subject }} (Year {{ teacher_subject.year.year }})</h1>
+        <a href="{% url 'users:user_profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Student List</h3>
+        </div>
+        <div class="card-body">
+            {% if student_data %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Real Name</th>
+                            <th>Nickname</th>
+                            <th>Email</th>
+                            <th>Questions Asked</th>
+                            <th>Answers Given</th>
+                            <th>Good Questions</th>
+                            <th>Good Answers</th>
+                            <th>Credits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in student_data %}
+                        <tr>
+                            <td>{{ data.obj.real_name }}</td>
+                            <td>{{ data.obj.nickname }}</td>
+                            <td>{{ data.obj.email }}</td>
+                            <td>{{ data.questions_asked }}</td>
+                            <td>{{ data.answers_given }}</td>
+                            <td>{{ data.obj.num_good_questions }}</td>
+                            <td>{{ data.obj.num_good_answers }}</td>
+                            <td>{{ data.obj.credit }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No students found in this subject.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

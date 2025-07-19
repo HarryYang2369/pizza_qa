@@ -1,0 +1,122 @@
+<!-- templates/users/profile.html -->
+{% extends "base/base.html" %}
+{% load django_bootstrap5 %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h1 class="card-title">{{ user.real_name }}</h1>
+            
+            {% if user.role == 'student' %}
+                <p class="text-muted">Nickname: {{ user.nickname }}</p>
+            {% endif %}
+            
+            <p class="text-muted">Email: {{ user.email }}</p>
+            
+            <h3>Change Password</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="change_password" value="1">
+                {% bootstrap_form form %}
+                <button type="submit" class="btn btn-primary mt-3">Update Password</button>
+            </form>
+        </div>
+    </div>
+    
+    {% if user.role == 'teacher' %}
+        <!-- Teacher specific content -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2>Manage Students</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for subject in subject_data %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ subject.obj.subject }}</h5>
+                                <p class="text-muted">Students: {{ subject.student_count }}</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{% url 'users:manage_students_in_subject' subject.obj.id %}" 
+                                   class="btn btn-primary w-100">
+                                    Manage Students
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h2>Manage Questions</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'users:manage_questions' question_type='general' %}" 
+                       class="btn btn-info btn-lg">
+                        Manage General Questions
+                    </a>
+                    <a href="{% url 'users:manage_questions' question_type='teacher' %}" 
+                       class="btn btn-info btn-lg">
+                        Manage Teachers Only Questions
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+    {% else %}
+        <!-- Student specific content -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2>Your Activity</h2>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5>Questions Asked</h5>
+                                <h3>{{ total_questions }}</h3>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{% url 'users:student_questions' %}" class="btn btn-outline-primary w-100">
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5>Resolved</h5>
+                                <h3>{{ resolved_questions }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5>Unresolved</h5>
+                                <h3>{{ unresolved_questions }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5>Answers Given</h5>
+                                <h3>{{ answers_given }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
