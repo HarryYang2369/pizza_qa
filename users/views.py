@@ -171,7 +171,7 @@ def manage_students_in_subject(request, subject_id):
     
     context = {
         'teacher_subject': teacher_subject,
-        'student_data': student_data
+        'student_data': student_data,
     }
     return render(request, 'users/manage_students_in_subject.html', context)
 

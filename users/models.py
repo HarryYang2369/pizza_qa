@@ -37,10 +37,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     num_good_questions = models.IntegerField(default=0)
     num_good_answers = models.IntegerField(default=0)
     credit = models.IntegerField(default=0)
-    num_questions_asked = models.IntegerField(default=0)
-    num_question_resolved = models.IntegerField(default=0)
-    num_answers_given = models.IntegerField(default=0)
-
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'

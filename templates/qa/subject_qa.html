@@ -9,7 +9,7 @@
         <i class="bi bi-plus-circle"></i> Ask Question
       </a>
     {% endif %}
-    <a href="{% url 'qa:subject_selection' %}" class="btn btn-outline-primary">
+    <a href="{% url 'qa:subject_selection' %}" class="btn btn-outline-secondary">
       Back
     </a>
   </div>
@@ -82,9 +82,9 @@
               <p class="mb-1">{{ question.description|truncatewords:20 }}</p>
               <small>
                 {% if request.user.role == 'teacher' %}
-                By: {{ question.student.real_name }} ({{ question.student.nickname }})
+                  By: {{ question.student.real_name }} ({{ question.student.nickname }})
                 {% else %}
-                By: {{ question.student.nickname }}
+                  By: {{ question.student.nickname }}
                 {% endif %}
               </small>
             </a>
