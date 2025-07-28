@@ -1,0 +1,83 @@
+<!-- templates/users/student_resolved_questions.html -->
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Resolved Questions - {{ subject }}</h1>
+        <a href="{% url 'users:student_subject_selection' view_type %}" class="btn btn-outline-secondary">Back to Subject Selection</a>
+    </div>
+    
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#general">General Resolved Questions</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#good">Good Resolved Questions</a>
+        </li>
+    </ul>
+    
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="general">
+            <div class="alert alert-warning">
+                <strong>Note:</strong> Questions marked "Resolved" will be automatically deleted after 10 days. 
+                Please save any important content or mark as "Unresolved" if you have further questions.
+            </div>
+            
+            {% if general_questions %}
+            <div class="list-group">
+                {% for question in general_questions %}
+                <a href="{% url 'qa:question_detail' question.id %}" 
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ question.title }}</h5>
+                        <small>
+                            {% if question.days_left > 0 %}
+                                <span class="badge bg-danger">Deleting in {{ question.days_left }} days</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Deleted</span>
+                            {% endif %}
+                        </small>
+                    </div>
+                    <p class="mb-1">{{ question.description|truncatewords:20 }}</p>
+                    <small>
+                        Resolved on: {{ question.resolved_at|date:"M d, Y" }} 
+                        ({{ question.resolved_at|timesince }} ago)
+                    </small>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No general resolved questions found for this subject.
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="tab-pane fade" id="good">
+            {% if good_questions %}
+            <div class="list-group">
+                {% for question in good_questions %}
+                <a href="{% url 'qa:question_detail' question.id %}" 
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ question.title }}</h5>
+                        <span class="badge bg-warning">Good Question</span>
+                    </div>
+                    <p class="mb-1">{{ question.description|truncatewords:20 }}</p>
+                    <small>
+                        Resolved on: {{ question.resolved_at|date:"M d, Y" }} 
+                        ({{ question.resolved_at|timesince }} ago)
+                    </small>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No good resolved questions found for this subject.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

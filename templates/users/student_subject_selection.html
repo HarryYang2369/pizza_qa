@@ -1,0 +1,42 @@
+<!-- templates/users/student_subject_selection.html -->
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            {% if view_type == 'good_questions' %}Good Questions
+            {% elif view_type == 'unresolved' %}Unresolved Questions
+            {% elif view_type == 'resolved' %}Resolved Questions
+            {% elif view_type == 'good_answers' %}Good Answers
+            {% else %}Select Subject{% endif %}
+        </h1>
+        <a href="{% url 'users:student_profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
+    </div>
+    
+    <div class="row">
+        {% for subject in subjects %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ subject.subject }}</h5>
+                    <p class="text-muted">Taught by: {{ subject.teacher.real_name }}</p>
+                </div>
+                <div class="card-footer">
+                    {% if view_type == 'good_answers' %}
+                        <a href="{% url 'users:student_answers' subject.id 'good_answers' %}" class="btn btn-primary w-100">
+                            View
+                        </a>
+                    {% else %}
+                        <a href="{% url 'users:student_subject_questions' subject.id view_type %}" 
+                            class="btn btn-primary w-100">
+                        Select
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends "base/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card mb-4 {% if question.visible_to_teachers %}teacher-only{% endif %}">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3>{{ question.title }}</h3>
+      {% if question.resolved %}
+        <span class="resolved-badge">Resolved</span>
+      {% endif %}
+      {% if question.good %}
+        <span class="good-badge">Good Question</span>
+      {% endif %}
+      <a href="{% url 'users:manage_questions' subject.id question_type %}" class="btn btn-outline-secondary btn-sm">
+        Back
+      </a>
+    </div>
+    <div class="card-body">
+      <div class="d-flex justify-content-between mb-3">
+        <div>
+          <strong>Year:</strong> {{ question.year_group.year }}
+          <strong>Tag:</strong> {{ question.tag|default:"No tag" }}
+        </div>
+        <div>
+          <small class="text-muted">
+            Posted {{ question.created_at|timesince }} ago
+          </small>
+        </div>
+      </div>
+      
+      <p class="card-text">{{ question.description|linebreaks }}</p>
+      
+      {% if question.image %}
+        <div class="mt-3">
+          <img src="{{ question.image.url }}" class="img-fluid rounded" alt="Question image">
+        </div>
+      {% endif %}
+      
+      <div class="mt-4 d-flex justify-content-between">
+        <div>
+          <strong>Asked by:</strong>
+          {% if request.user.role == 'teacher' %}
+            {{ question.student.real_name }} ({{ question.student.nickname }})
+          {% else %}
+            {{ question.student.nickname }}
+          {% endif %}
+        </div>
+        <div>
+          <form method="post" action="{% url 'qa:good_question' question.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+              Good Question! {{ question.good_num }}
+            </button>
+          </form>
+        </div>
+          {% if request.user.role == 'teacher' %}
+            <a href="{% url 'qa:set_good_question' question.id %}" class="btn btn-outline-success btn-sm">
+              Set to Good Question
+            </a>
+          {% endif %}
+        <div>
+          {% if request.user == question.student or request.user.role == 'teacher' %}
+            <form method="post" action="{% url 'qa:mark_resolved' question.id %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm {% if question.resolved %}btn-outline-secondary{% else %}btn-success{% endif %} me-2">
+                {% if question.resolved %}
+                  Mark Unresolved
+                {% else %}
+                  Mark Resolved
+                {% endif %}
+              </button>
+            </form>
+            <a href="{% url 'qa:edit_question' question.id %}" class="btn btn-sm btn-outline-primary">
+              Edit Question
+            </a>
+            <a href="{% url 'qa:delete_question' question.id %}" class="btn btn-sm btn-outline-danger">
+              Delete Question
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <h4 class="mb-3">Answers</h4>
+  
+  {% for answer in answers %}
+    <div class="card mb-3 {% if answer.user.role == 'teacher' %}teacher-answer{% else %}answer-card{% endif %}">
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <div>
+            {% if answer.user.role == 'teacher' %}
+              <strong>{{ answer.user.real_name }} (Teacher)</strong>
+            {% elif request.user.role == 'teacher' %}
+              <strong>
+                {{ answer.user.real_name }} ({{ answer.user.nickname }})
+              </strong>
+            {% else %}
+              <strong>{{ answer.user.nickname }}</strong>
+            {% endif %}
+          </div>
+          {% if answer.good %}
+            <span class="badge bg-success">Good Answer</span>
+          {% endif %}
+          <small class="text-muted">{{ answer.created_at|timesince }} ago</small>
+        </div>
+        
+        <p>{{ answer.text|linebreaks }}</p>
+        
+        {% if answer.image %}
+          <div class="mt-2">
+            <img src="{{ answer.image.url }}" class="img-fluid rounded" alt="Answer image" style="max-height: 200px;">
+          </div>
+        {% endif %}
+        <div class="mt-3 d-flex justify-content-between">
+          <div>
+            {% if request.user == answer.user or request.user.role == 'teacher' %}
+              <a href="{% url 'qa:edit_answer' answer.id %}" class="btn btn-sm btn-outline-primary me-2">Edit</a>
+              <a href="{% url 'qa:delete_answer' answer.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="mt-2">
+          <form method="post" action="{% url 'qa:good_answer' answer.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+              Good Answer! {{ answer.good_num }}
+            </button>
+          </form>
+          {% if request.user.role == 'teacher' %}
+            <a href="{% url 'qa:set_good_answer' answer.id %}" class="btn btn-outline-success btn-sm">
+              Set to Good Answer
+            </a>
+          {% endif %}
+          </div>
+      </div>
+    </div>
+    {% empty %}
+      <div class="alert alert-info">
+        No answers yet. Be the first to answer!
+      </div>
+  {% endfor %}
+  
+  {% if not question.resolved %}
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5>Post Your Answer</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% bootstrap_form form %}
+          <button type="submit" class="btn btn-primary">Post Answer</button>
+        </form>
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert-success mt-4">
+      This question has been marked as resolved. No further answers can be posted.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+<!-- templates/users/teacher_question_type_selection.html -->
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Select Question Type</h1>
+        <a href="{% url 'users:teacher_profile' %}" class="btn btn-outline-secondary">Back</a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 clickable-block" 
+                 onclick="window.location='{% url 'users:teacher_subject_selection' 'general' %}'">
+                <div class="card-body text-center">
+                    <h3>General Questions</h3>
+                    <p>Public questions visible to all students</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 clickable-block" 
+                 onclick="window.location='{% url 'users:teacher_subject_selection' 'teacher' %}'">
+                <div class="card-body text-center">
+                    <h3>Teachers Only Questions</h3>
+                    <p>Private questions visible only to teachers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

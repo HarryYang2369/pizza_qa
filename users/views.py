@@ -3,11 +3,7 @@ from .forms import StudentRegistrationForm, TeacherRegistrationForm, LoginForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 from .models import CustomUser
-from django.db.models import Count, Q, OuterRef
-from django.db import models
 from django.contrib.auth.forms import PasswordChangeForm
 from qa.models import TeacherSubject, Question, Answer, StudentSubject, Subject
 
@@ -176,24 +172,30 @@ def manage_students_in_subject(request, subject_id):
     return render(request, 'users/manage_students_in_subject.html', context)
 
 
+# users/views.py
 @login_required
-def manage_questions(request, question_type):
-    if request.user.role == 'teacher':
-        subjects = TeacherSubject.objects.filter(teacher=request.user)
-    else:
-        subjects = StudentSubject.objects.filter(student=request.user)
+def manage_questions(request, subject_id, question_type):
+    """View for managing questions by subject and type"""
+    subject = get_object_or_404(TeacherSubject, id=subject_id, teacher=request.user)
     
-    # Get questions based on type
-    questions = Question.objects.filter(
-        subject__in=[s.subject for s in subjects]
-    )
+    # Permission check for teacher
+    if request.user.role != 'teacher':
+        messages.error(request, "You don't have permission to access this page.")
+        return redirect('users:user_profile')
+    
+    # Check if teacher teaches this subject
+    # if not TeacherSubject.objects.filter(teacher=request.user, subject=subject).exists():
+    #     messages.error(request, "You don't teach this subject.")
+    #     return redirect('users:teacher_subject_selection', question_type=question_type)
+    
+    questions = Question.objects.filter(subject=subject.subject).order_by('-created_at')
     
     if question_type == 'general':
         questions = questions.filter(visible_to_teachers=False)
-        title = "General Questions"
+        title = f"General Questions - {subject}"
     else:
         questions = questions.filter(visible_to_teachers=True)
-        title = "Teachers Only Questions"
+        title = f"Teachers Only Questions - {subject}"
     
     # Filter by resolved status
     resolved = request.GET.get('resolved', None)
@@ -203,6 +205,7 @@ def manage_questions(request, question_type):
         questions = questions.filter(resolved=False)
     
     context = {
+        'subject': subject,
         'questions': questions,
         'question_type': question_type,
         'title': title
@@ -210,18 +213,18 @@ def manage_questions(request, question_type):
     return render(request, 'users/manage_questions.html', context)
 
 
-@login_required
-def student_questions(request):
-    subjects = StudentSubject.objects.filter(student=request.user)
-    # Add question count to each subject with a different name
-    for subject in subjects:
-        subject.question_count_value = Question.objects.filter(
-            student=request.user,
-            subject=subject.subject
-        ).count()
+# @login_required
+# def student_questions(request):
+#     subjects = StudentSubject.objects.filter(student=request.user)
+#     # Add question count to each subject with a different name
+#     for subject in subjects:
+#         subject.question_count_value = Question.objects.filter(
+#             student=request.user,
+#             subject=subject.subject
+#         ).count()
     
-    context = {'subjects': subjects}
-    return render(request, 'users/student_questions.html', context)
+#     context = {'subjects': subjects}
+#     return render(request, 'users/student_questions.html', context)
 
 @login_required
 def student_subject_questions(request, subject_id):
@@ -236,3 +239,196 @@ def student_subject_questions(request, subject_id):
         'questions': questions
     }
     return render(request, 'users/student_subject_questions.html', context)
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('users:user_profile')
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'users/change_password.html', {'form': form})
+
+@login_required
+def teacher_profile(request):
+    teacher = request.user
+    subjects = TeacherSubject.objects.filter(teacher=teacher)
+    
+    # Create a list of subject data with student counts
+    subject_data = []
+    for subject in subjects:
+        subject_data.append({
+            'obj': subject,
+            'student_count': StudentSubject.objects.filter(
+                subject=subject.subject,
+                year=subject.year,
+                teacher=subject.teacher
+            ).count()
+        })
+    
+    context = {
+        'teacher': teacher,
+        'subject_data': subject_data
+    }
+    return render(request, 'users/profile_teacher.html', context)
+
+@login_required
+def teacher_class_selection(request):
+    subjects = TeacherSubject.objects.filter(teacher=request.user)
+    context = {'subjects': subjects}
+    return render(request, 'users/teacher_class_selection.html', context)
+
+@login_required
+def teacher_question_type_selection(request):
+    return render(request, 'users/teacher_question_type_selection.html')
+
+@login_required
+def teacher_subject_selection(request, question_type):
+    subjects = TeacherSubject.objects.filter(teacher=request.user)
+    context = {'subjects': subjects, 'question_type': question_type}
+    return render(request, 'users/teacher_subject_selection.html', context)
+
+# users/views.py
+@login_required
+def student_profile(request):
+    student = request.user
+    context = {
+        'student': student,
+        'total_questions': Question.objects.filter(student=student).count(),
+        'good_questions': Question.objects.filter(student=student, good=True).count(),
+        'unresolved_questions': Question.objects.filter(student=student, resolved=False).count(),
+        'resolved_questions': Question.objects.filter(student=student, resolved=True).count(),
+        'answers_given': Answer.objects.filter(user=student).count(),
+        'good_answers': Answer.objects.filter(user=student, good=True).count(),
+    }
+    return render(request, 'users/profile_student.html', context)
+
+@login_required
+def view_student_profile(request, student_id, subject_id):
+    student = get_object_or_404(CustomUser, id=student_id, role='student')
+    context = {
+        'student': student,
+        'total_questions': Question.objects.filter(student=student).count(),
+        'good_questions': Question.objects.filter(student=student, good=True).count(),
+        'unresolved_questions': Question.objects.filter(student=student, resolved=False).count(),
+        'resolved_questions': Question.objects.filter(student=student, resolved=True).count(),
+        'answers_given': Answer.objects.filter(user=student).count(),
+        'good_answers': Answer.objects.filter(user=student, good=True).count(),
+        'subject_id': subject_id,
+    }
+    return render(request, 'users/profile_student_view.html', context)
+
+@login_required
+def student_subject_selection(request, view_type):
+    subjects = StudentSubject.objects.filter(student=request.user)
+    context = {'subjects': subjects, 'view_type': view_type}
+    return render(request, 'users/student_subject_selection.html', context)
+
+# users/views.py
+from django.utils import timezone
+from datetime import timedelta
+
+@login_required
+def student_subject_questions(request, subject_id, view_type):
+    student = request.user
+    subject = get_object_or_404(StudentSubject, id=subject_id, student=request.user)
+    
+    # Calculate deletion threshold (10 days)
+    deletion_threshold = timezone.now() - timedelta(days=10)
+    
+    if view_type == 'resolved':
+        # Get both general and good resolved questions
+        general_questions = Question.objects.filter(
+            student=student,
+            subject=subject.subject,
+            resolved=True,
+            good=False
+        )
+        good_questions = Question.objects.filter(
+            student=student,
+            subject=subject.subject,
+            resolved=True,
+            good=True
+        )
+        
+        # Add days left for deletion to general questions
+        for q in general_questions:
+            days_left = 10 - (timezone.now() - q.resolved_at).days
+            q.days_left = max(0, days_left) if days_left > 0 else 0
+            q.will_be_deleted = days_left <= 10 and days_left > 0
+        
+        context = {
+            'subject': subject,
+            'general_questions': general_questions,
+            'good_questions': good_questions,
+            'deletion_threshold': deletion_threshold,
+            'view_type': view_type
+        }
+        return render(request, 'users/student_resolved_questions.html', context)
+    
+    else:
+    
+        if view_type == 'good_questions':
+            questions = Question.objects.filter(
+                student=student,
+                subject=subject.subject,
+                good=True
+            )
+            title = f"Good Questions - {subject}"
+
+        elif view_type == 'unresolved':
+            questions = Question.objects.filter(
+                student=student,
+                subject=subject.subject,
+                resolved=False
+            )
+            title = f"Unresolved Questions - {subject}"
+        
+        else:
+            questions = Question.objects.filter(
+                student=student,
+                subject=subject.subject
+            )
+            title = f"All Questions - {subject}"
+
+        context = {
+            'subject': subject,
+            'questions': questions,
+            'title': title,
+            'view_type': view_type
+        }
+        return render(request, 'users/student_subject_questions.html', context)
+
+@login_required
+def student_answers(request, subject_id, answer_type):
+    subject = get_object_or_404(StudentSubject, id=subject_id, student=request.user)
+    student = request.user
+    
+    if answer_type == 'general_answers':
+        answers = Answer.objects.filter(
+            user=student,
+            question__subject=subject.subject,
+            good=False
+        )
+        title = f"General Answers - {subject}"
+        
+    elif answer_type == 'good_answers':
+        answers = Answer.objects.filter(
+            user=student,
+            question__subject=subject.subject,
+            good=True
+        )
+        title = f"Good Answers - {subject}"
+    
+    context = {
+        'subject': subject,
+        'answers': answers,
+        'title': title,
+        'answer_type': answer_type
+    }
+    return render(request, 'users/student_answers.html', context)

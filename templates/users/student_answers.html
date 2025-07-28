@@ -1,0 +1,36 @@
+<!-- templates/users/student_answers.html -->
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ title }}</h1>
+        <a href="{% url 'users:student_subject_selection' 'good_answers' %}" class="btn btn-outline-secondary">Back to Subject</a>
+    </div>
+    
+    {% if answers %}
+    <div class="list-group">
+        {% for answer in answers %}
+        <a href="{% url 'qa:question_detail' answer.question.id %}{% if answer_type == 'good_answers' %}#answer-{{ answer.id }}{% endif %}" 
+           class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">Answer to: {{ answer.question.title }}</h5>
+                {% if answer_type == 'good_answers' %}
+                <span class="badge bg-success">Good Answer</span>
+                {% endif %}
+            </div>
+            <p class="mb-1">{{ answer.text|truncatewords:20 }}</p>
+            <small>
+                Posted {{ answer.created_at|timesince }} ago
+                in {{ answer.question.subject }}
+            </small>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No answers found.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

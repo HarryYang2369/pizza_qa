@@ -83,6 +83,22 @@ class TeacherSubject(models.Model):
             year=self.year,
             teacher=self.teacher
         ).count()
+    
+    @property
+    def general_unresolved_count(self):
+        return Question.objects.filter(
+            subject=self.subject,
+            resolved=False,
+            visible_to_teachers=False
+        ).count()
+    
+    @property
+    def teacher_unresolved_count(self):
+        return Question.objects.filter(
+            subject=self.subject,
+            resolved=False,
+            visible_to_teachers=True
+        ).count()
 
 class StudentSubject(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='enrolled_subjects')
@@ -116,6 +132,7 @@ class Question(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='questions')
     good = models.BooleanField(default=False)
     good_num = models.IntegerField(default=0)
+    resolved_at = models.DateTimeField(blank=True, null=True)
     
     def __str__(self):
         return self.title
@@ -123,6 +140,12 @@ class Question(models.Model):
     def can_edit_delete(self, user):
         """Check if the user can edit or delete this question."""
         return user == self.student or user.role == 'teacher'
+    
+    def save(self, *args, **kwargs):
+        # Set resolved_at when marking as resolved
+        if self.resolved and not self.resolved_at:
+            self.resolved_at = timezone.now()
+        super().save(*args, **kwargs)
     
     class Meta:
         ordering = ['-created_at']

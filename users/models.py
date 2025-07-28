@@ -1,5 +1,3 @@
-import random
-import string
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db.models.signals import post_save
@@ -34,6 +32,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    num_answers_given = models.IntegerField(default=0)
+    num_questions_asked = models.IntegerField(default=0)
     num_good_questions = models.IntegerField(default=0)
     num_good_answers = models.IntegerField(default=0)
     credit = models.IntegerField(default=0)
@@ -54,7 +54,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             self.nickname = f"Student_{self.id}"
             # Save just the nickname field to avoid recursion
             self.save(update_fields=['nickname'])
-    
+        
     def get_available_subjects(self):
         """Get subjects available for the user based on their role."""
         if self.role == 'teacher':

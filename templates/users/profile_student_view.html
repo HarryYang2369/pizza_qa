@@ -1,0 +1,120 @@
+<!-- templates/users/profile_student.html -->
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-body text-center">
+            <h1 class="card-title">{{ student.real_name }}</h1>
+            <p class="text-muted">Nickname: {{ student.nickname }}</p>
+        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{% url 'users:manage_students_in_subject' subject_id %}" class="btn btn-outline-secondary">Back to Class Selection</a>
+    </div>
+    
+    <!-- Activity Panel -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2>Your Activity</h2>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <!-- Total Questions -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5>Total Questions</h5>
+                            <h3>{{ total_questions }}</h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Good Questions -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5>Good Questions</h5>
+                            <h3>{{ good_questions }}</h3>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'users:student_subject_selection' 'good_questions' %}" 
+                               class="btn btn-outline-primary w-100">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Unresolved -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5>Unresolved</h5>
+                            <h3>{{ unresolved_questions }}</h3>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'users:student_subject_selection' 'unresolved' %}" 
+                               class="btn btn-outline-primary w-100">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resolved -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5>Resolved</h5>
+                            <h3>{{ resolved_questions }}</h3>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'users:student_subject_selection' 'resolved' %}" 
+                               class="btn btn-outline-primary w-100">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Answers Given -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5>Answers Given</h5>
+                            <h3>{{ answers_given }}</h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Good Answers -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5>Good Answers</h5>
+                            <h3>{{ good_answers }}</h3>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'users:student_subject_selection' 'good_answers' %}" 
+                               class="btn btn-outline-primary w-100">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.clickable-block {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.clickable-block:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

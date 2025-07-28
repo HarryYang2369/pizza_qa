@@ -5,7 +5,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Manage Students - {{ teacher_subject.subject }} (Year {{ teacher_subject.year.year }})</h1>
-        <a href="{% url 'users:user_profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
+        <a href="{% url 'users:teacher_class_selection' %}" class="btn btn-outline-secondary">Back to Class Selection</a>
     </div>
     
     <div class="card">
@@ -26,6 +26,7 @@
                             <th>Good Questions</th>
                             <th>Good Answers</th>
                             <th>Credits</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,9 +43,12 @@
                             <td>
                                 <a href="{% url 'users:delete_student' data.obj.id %}" 
                                    class="btn btn-sm btn-danger btn-delete"
-                                   data-name="{{ student.real_name }}">
+                                   data-name="{{ data.obj.real_name }}">
                                     Delete
                                 </a>
+                                <a href="{% url 'users:view_student_profile' data.obj.id teacher_subject.id %}" 
+                                   class="btn btn-sm btn-secondary">
+                                    View
                             </td>
                         </tr>
                         {% endfor %}

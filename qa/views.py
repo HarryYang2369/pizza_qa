@@ -50,8 +50,8 @@ def ask_question(request, subject_id):
             return redirect('qa:subject_qa', subject_id=subject.id)
     else:
         form = QuestionForm()
-    request.user.num_questions_asked += 1
-    request.user.save()
+    # request.user.num_questions_asked += 1
+    # request.user.save()
     context = {'form': form, 'subject': subject}
     return render(request, 'qa/ask_question.html', context)
 
@@ -79,8 +79,8 @@ def question_detail(request, question_id):
             answer.user = request.user
             answer.save()
             messages.success(request, "Your answer has been posted!")
-            request.user.num_answers_given += 1
-            request.user.save()
+            # request.user.num_answers_given += 1
+            # request.user.save()
             return redirect('qa:question_detail', question_id=question_id)
     
     context = {
@@ -92,6 +92,43 @@ def question_detail(request, question_id):
     return render(request, 'qa/question_detail.html', context)
 
 @login_required
+def question_detail_profile(request, question_id, question_type):
+    question = get_object_or_404(Question, id=question_id)
+    if request.user.role == 'teacher':
+        subject = get_object_or_404(TeacherSubject, subject=question.subject, teacher=request.user)
+    else:
+        subject = get_object_or_404(StudentSubject, subject=question.subject, student=request.user)
+    # Security check: Students can only see their own teacher-only questions
+    if request.user.role == 'student' and question.visible_to_teachers and question.student!= request.user:
+        if question.student != request.user:
+            messages.error(request, "You don't have permission to view this question.")
+            return redirect('qa:subject_selection')
+    
+    answers = question.answers.all()
+    form = AnswerForm()
+    
+    if request.method == 'POST':
+        form = AnswerForm(request.POST, request.FILES)
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.question = question
+            answer.user = request.user
+            answer.save()
+            messages.success(request, "Your answer has been posted!")
+            # request.user.num_answers_given += 1
+            # request.user.save()
+            return redirect('qa:question_detail_profile', question_id=question_id, question_type=question_type)
+
+    context = {
+        'question': question,
+        'answers': answers,
+        'form': form,
+        'subject': subject,
+        'question_type': question_type
+    }
+    return render(request, 'qa/question_detail_profile.html', context)
+
+@login_required
 def mark_resolved(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     student = question.student
@@ -100,12 +137,12 @@ def mark_resolved(request, question_id):
     if request.user == student or request.user.role == 'teacher':
         question.resolved = not question.resolved
         question.save()
-        if hasattr(student, 'num_question_resolved'):
-            if question.resolved:
-                student.num_question_resolved = (student.num_question_resolved or 0) + 1
-            else:
-                student.num_question_resolved = max((student.num_question_resolved or 1) - 1, 0)
-            student.save()
+        # if hasattr(student, 'num_question_resolved'):
+        #     if question.resolved:
+        #         student.num_question_resolved = (student.num_question_resolved or 0) + 1
+        #     else:
+        #         student.num_question_resolved = max((student.num_question_resolved or 1) - 1, 0)
+        #     student.save()
         status = "resolved" if question.resolved else "unresolved"
         messages.success(request, f"Question marked as {status}!")
     return redirect('qa:question_detail', question_id=question_id)
@@ -154,9 +191,9 @@ def delete_question(request, question_id):
                 subject_id = None
         # Decrement num_questions_asked for the student
         student = question.student
-        if hasattr(student, 'num_questions_asked') and student.num_questions_asked:
-            student.num_questions_asked = max(student.num_questions_asked - 1, 0)
-            student.save()
+        # if hasattr(student, 'num_questions_asked') and student.num_questions_asked:
+        #     student.num_questions_asked = max(student.num_questions_asked - 1, 0)
+        #     student.save()
         question.delete()
         messages.success(request, "Question has been deleted.")
         if subject_id:
@@ -201,10 +238,10 @@ def delete_answer(request, answer_id):
 
     if request.method == 'POST':
         # Decrement num_answers_given for the student if applicable
-        student = answer.user
-        if hasattr(student, 'num_answers_given') and student.num_answers_given:
-            student.num_answers_given = max(student.num_answers_given - 1, 0)
-            student.save()
+        # student = answer.user
+        # if hasattr(student, 'num_answers_given') and student.num_answers_given:
+        #     student.num_answers_given = max(student.num_answers_given - 1, 0)
+        #     student.save()
         answer.delete()
         messages.success(request, "Answer has been deleted.")
         return redirect('qa:question_detail', question_id=question.id)
@@ -391,16 +428,16 @@ def set_good_question(request, question_id):
         question.good = True
         question.save()
         # Reward the student who asked the question
-        student = question.student
-        if hasattr(student, 'num_good_question'):
-            student.num_good_question = (student.num_good_question or 0) + 1
-        else:
-            student.num_good_question = 1
-        if hasattr(student, 'credit'):
-            student.credit = (student.credit or 0) + 1
-        else:
-            student.credit = 1
-        student.save()
+        # student = question.student
+        # if hasattr(student, 'num_good_question'):
+        #     student.num_good_question = (student.num_good_question or 0) + 1
+        # else:
+        #     student.num_good_question = 1
+        # if hasattr(student, 'credit'):
+        #     student.credit = (student.credit or 0) + 1
+        # else:
+        #     student.credit = 1
+        # student.save()
         messages.success(request, "Question marked as a good question!")
         return redirect('qa:question_detail', question_id=question_id)
     return redirect('qa:question_detail', question_id=question_id)
@@ -418,16 +455,16 @@ def set_good_answer(request, answer_id):
         answer.good = True
         answer.save()
         # Reward the student who posted the answer
-        student = answer.user
-        if hasattr(student, 'num_good_answer'):
-            student.num_good_answer = (student.num_good_answer or 0) + 1
-        else:
-            student.num_good_answer = 1
-        if hasattr(student, 'credit'):
-            student.credit = (student.credit or 0) + 2
-        else:
-            student.credit = 2
-        student.save()
+        # student = answer.user
+        # if hasattr(student, 'num_good_answer'):
+        #     student.num_good_answer = (student.num_good_answer or 0) + 1
+        # else:
+        #     student.num_good_answer = 1
+        # if hasattr(student, 'credit'):
+        #     student.credit = (student.credit or 0) + 2
+        # else:
+        #     student.credit = 2
+        # student.save()
         messages.success(request, "Answer marked as a good answer!")
         return redirect('qa:question_detail', question_id=answer.question.id)
     return redirect('qa:question_detail', question_id=answer.question.id)

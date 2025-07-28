@@ -1,0 +1,45 @@
+<!-- templates/users/profile_teacher.html -->
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-body text-center">
+            <h1 class="card-title">{{ user.real_name }}</h1>
+            <p class="text-muted">Teacher Profile</p>
+        </div>
+    </div>
+    
+    <!-- Change Password Block -->
+    <div class="card mb-4 clickable-block" onclick="window.location='{% url 'users:change_password' %}'">
+        <div class="card-body">
+            <h3 class="text-center">Change Password</h3>
+        </div>
+    </div>
+    
+    <!-- Manage Students Block -->
+    <div class="card mb-4 clickable-block" onclick="window.location='{% url 'users:teacher_class_selection' %}'">
+        <div class="card-body">
+            <h3 class="text-center">Manage Students</h3>
+        </div>
+    </div>
+    
+    <!-- Manage Questions Block -->
+    <div class="card mb-4 clickable-block" onclick="window.location='{% url 'users:teacher_question_type_selection' %}'">
+        <div class="card-body">
+            <h3 class="text-center">Manage Questions</h3>
+        </div>
+    </div>
+</div>
+
+<style>
+.clickable-block {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.clickable-block:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

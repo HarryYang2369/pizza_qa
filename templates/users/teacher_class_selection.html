@@ -1,11 +1,11 @@
-<!-- templates/users/student_questions.html -->
+<!-- templates/users/teacher_class_selection.html -->
 {% extends "base/base.html" %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Your Questions</h1>
-        <a href="{% url 'users:user_profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
+        <h1>Manage Student - Select a Class</h1>
+        <a href="{% url 'users:teacher_profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
     </div>
     
     <div class="row">
@@ -14,14 +14,13 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title">{{ subject.subject }}</h5>
-                    <p class="card-text">
-                        Questions: {{ subject.question_count }}
-                    </p>
+                    <p class="text-muted">Year {{ subject.year.year }}</p>
+                    <p class="card-text">Students: {{ subject.student_count }}</p>
                 </div>
                 <div class="card-footer">
-                    <a href="{% url 'users:student_subject_questions' subject.subject.id %}" 
+                    <a href="{% url 'users:manage_students_in_subject' subject.id %}" 
                        class="btn btn-primary w-100">
-                        Manage Questions
+                        Manage Students
                     </a>
                 </div>
             </div>

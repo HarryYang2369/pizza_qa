@@ -5,37 +5,27 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>{{ title }}</h1>
-        <a href="{% url 'users:user_profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
+        <a href="{% url 'users:teacher_subject_selection' question_type %}" class="btn btn-outline-secondary">Back</a>
     </div>
     
-    <div class="card mb-4">
-        <div class="card-header">
-            <ul class="nav nav-tabs card-header-tabs">
-                <li class="nav-item">
-                    <a class="nav-link {% if resolved == 'false' %}active{% endif %}" 
-                       href="?resolved=false">
-                        Unresolved
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if resolved == 'true' %}active{% endif %}" 
-                       href="?resolved=true">
-                        Resolved
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if resolved == None %}active{% endif %}" 
-                       href="?">
-                        All Questions
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class="card-body">
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#all">All Questions</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#unresolved">Unresolved</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#resolved">Resolved</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="all">
             {% if questions %}
             <div class="list-group">
                 {% for question in questions %}
-                <a href="{% url 'qa:question_detail' question.id %}" 
+                <a href="{% url 'qa:question_detail_profile' question.id question_type %}" 
                    class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{ question.title }}</h5>
@@ -59,6 +49,65 @@
             </div>
             {% endif %}
         </div>
+
+        <div class="tab-pane fade" id="unresolved">
+            {% if unresolved_questions %}
+            <div class="list-group">
+                {% for question in unresolved_questions %}
+                <a href="{% url 'qa:question_detail_profile' question.id question_type %}" 
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ question.title }}</h5>
+                        <small>{{ question.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ question.description|truncatewords:20 }}</p>
+                    <small>
+                        Asked by: 
+                        {% if request.user.role == 'teacher' %}
+                            {{ question.student.real_name }} ({{ question.student.nickname }})
+                        {% else %}
+                            {{ question.student.nickname }}
+                        {% endif %}
+                    </small>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No unresolved questions found.
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="resolved">
+            {% if resolved_questions %}
+            <div class="list-group">
+                {% for question in resolved_questions %}
+                <a href="{% url 'qa:question_detail_profile' question.id question_type %}" 
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ question.title }}</h5>
+                        <small>{{ question.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ question.description|truncatewords:20 }}</p>
+                    <small>
+                        Asked by: 
+                        {% if request.user.role == 'teacher' %}
+                            {{ question.student.real_name }} ({{ question.student.nickname }})
+                        {% else %}
+                            {{ question.student.nickname }}
+                        {% endif %}
+                    </small>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No resolved questions found.
+            </div>
+            {% endif %}
+        </div>
     </div>
+
 </div>
 {% endblock %}
