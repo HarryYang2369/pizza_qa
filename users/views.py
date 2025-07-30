@@ -295,22 +295,8 @@ def teacher_subject_selection(request, question_type):
 
 # users/views.py
 @login_required
-def student_profile(request):
-    student = request.user
-    context = {
-        'student': student,
-        'total_questions': Question.objects.filter(student=student).count(),
-        'good_questions': Question.objects.filter(student=student, good=True).count(),
-        'unresolved_questions': Question.objects.filter(student=student, resolved=False).count(),
-        'resolved_questions': Question.objects.filter(student=student, resolved=True).count(),
-        'answers_given': Answer.objects.filter(user=student).count(),
-        'good_answers': Answer.objects.filter(user=student, good=True).count(),
-    }
-    return render(request, 'users/profile_student.html', context)
-
-@login_required
-def view_student_profile(request, student_id, subject_id):
-    student = get_object_or_404(CustomUser, id=student_id, role='student')
+def student_profile(request, student_id, subject_id):
+    student = request.user if request.user.role == 'student' else get_object_or_404(CustomUser, id=student_id, role='student')
     context = {
         'student': student,
         'total_questions': Question.objects.filter(student=student).count(),
@@ -321,7 +307,22 @@ def view_student_profile(request, student_id, subject_id):
         'good_answers': Answer.objects.filter(user=student, good=True).count(),
         'subject_id': subject_id,
     }
-    return render(request, 'users/profile_student_view.html', context)
+    return render(request, 'users/profile_student.html', context)
+
+# @login_required
+# def view_student_profile(request, student_id, subject_id):
+#     student = get_object_or_404(CustomUser, id=student_id, role='student')
+#     context = {
+#         'student': student,
+#         'total_questions': Question.objects.filter(student=student).count(),
+#         'good_questions': Question.objects.filter(student=student, good=True).count(),
+#         'unresolved_questions': Question.objects.filter(student=student, resolved=False).count(),
+#         'resolved_questions': Question.objects.filter(student=student, resolved=True).count(),
+#         'answers_given': Answer.objects.filter(user=student).count(),
+#         'good_answers': Answer.objects.filter(user=student, good=True).count(),
+#         'subject_id': subject_id,
+#     }
+#     return render(request, 'users/profile_student_view.html', context)
 
 @login_required
 def student_subject_selection(request, view_type):

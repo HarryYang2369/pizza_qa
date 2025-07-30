@@ -3,6 +3,11 @@
 
 {% block content %}
 <div class="container mt-4">
+    {% if request.user.role == 'teacher' %}
+        <div class="d-flex justify-content-end align-items-center mb-4">
+            <a href="{% url 'users:manage_students_in_subject' subject_id %}" class="btn btn-outline-secondary">Back to Class Selection</a>
+        </div>
+    {% endif %}
     <div class="card mb-4">
         <div class="card-body text-center">
             <h1 class="card-title">{{ student.real_name }}</h1>

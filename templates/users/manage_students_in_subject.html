@@ -41,14 +41,16 @@
                             <td>{{ data.obj.num_good_answers }}</td>
                             <td>{{ data.obj.credit }}</td>
                             <td>
+                                <a href="{% url 'users:student_profile' data.obj.id teacher_subject.id %}" 
+                                   class="btn btn-sm btn-secondary">
+                                    View
+                                </a>
                                 <a href="{% url 'users:delete_student' data.obj.id %}" 
                                    class="btn btn-sm btn-danger btn-delete"
                                    data-name="{{ data.obj.real_name }}">
                                     Delete
                                 </a>
-                                <a href="{% url 'users:view_student_profile' data.obj.id teacher_subject.id %}" 
-                                   class="btn btn-sm btn-secondary">
-                                    View
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}

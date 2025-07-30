@@ -38,21 +38,21 @@ class StudentSubjectForm(forms.ModelForm):
     class Meta:
         model = StudentSubject
         fields = ['year', 'subject', 'teacher']
-        
+
     def __init__(self, *args, **kwargs):
         student = kwargs.pop('student', None)
         super().__init__(*args, **kwargs)
-        
-        # Set initial year to student's year
+
+        # Set year to student's year and make it not editable
         if student and student.year:
-            self.fields['year'].initial = YearGroup.objects.get(year=student.year)
-        
-        # Only show years 8-12
-        self.fields['year'].queryset = YearGroup.objects.filter(year__in=range(8, 13))
-        
+            year_instance = YearGroup.objects.get(year=student.year)
+            self.fields['year'].initial = year_instance
+            self.fields['year'].queryset = YearGroup.objects.filter(pk=year_instance.pk)
+            self.fields['year'].disabled = True  # Make the field read-only
+
         # Filter teachers based on selected subject and year
         self.fields['teacher'].queryset = CustomUser.objects.none()
-        
+
         if 'subject' in self.data and 'year' in self.data:
             try:
                 year_id = int(self.data.get('year'))
