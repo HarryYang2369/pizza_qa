@@ -1,0 +1,88 @@
+# Version control
+.git/
+.gitignore
+.svn/
+.hg/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+
+# Virtual environments
+venv/
+ENV/
+.env/
+*.env
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build outputs
+build/
+dist/
+out/
+
+# Test and debug files
+test/
+tests/
+*.log
+debug/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Documentation
+README*
+*.md
+docs/
+
+# Docker files
+Dockerfile*
+docker-compose*
+
+# Secrets and config
+*.pem
+*.key
+*.crt
+config.local.*
+*.local.yml
+.local/
+local/
+
+# Node.js (if present)
+node_modules/
+npm-debug.log
+yarn-debug.log
+
+# Go (if present)
+/vendor/
+*.test
+.go-cache/
+
+# Java (if present)
+target/
+*.class
+.gradle/
+
+# SQLite database (if not needed in image)
+db.sqlite3
+
+# Media (if not needed in image)
+media/
+
+# Static files (if generated at build time)
+static/
+
+# Migrations cache
+**/migrations/__pycache__/
+
+# Miscellaneous
+LICENSE

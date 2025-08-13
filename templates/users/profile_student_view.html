@@ -7,6 +7,8 @@
         <div class="card-body text-center">
             <h1 class="card-title">{{ student.real_name }}</h1>
             <p class="text-muted">Nickname: {{ student.nickname }}</p>
+            <p class="text-muted">Email: {{ student.email }}</p>
+            <p class="text-muted">Credits: {{ student.credit }}</p>
         </div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <a href="{% url 'users:manage_students_in_subject' subject_id %}" class="btn btn-outline-secondary">Back to Class Selection</a>
@@ -36,12 +38,6 @@
                             <h5>Good Questions</h5>
                             <h3>{{ good_questions }}</h3>
                         </div>
-                        <div class="card-footer">
-                            <a href="{% url 'users:student_subject_selection' 'good_questions' %}" 
-                               class="btn btn-outline-primary w-100">
-                                View
-                            </a>
-                        </div>
                     </div>
                 </div>
                 
@@ -52,12 +48,6 @@
                             <h5>Unresolved</h5>
                             <h3>{{ unresolved_questions }}</h3>
                         </div>
-                        <div class="card-footer">
-                            <a href="{% url 'users:student_subject_selection' 'unresolved' %}" 
-                               class="btn btn-outline-primary w-100">
-                                View
-                            </a>
-                        </div>
                     </div>
                 </div>
                 
@@ -67,12 +57,6 @@
                         <div class="card-body">
                             <h5>Resolved</h5>
                             <h3>{{ resolved_questions }}</h3>
-                        </div>
-                        <div class="card-footer">
-                            <a href="{% url 'users:student_subject_selection' 'resolved' %}" 
-                               class="btn btn-outline-primary w-100">
-                                View
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -93,12 +77,6 @@
                         <div class="card-body">
                             <h5>Good Answers</h5>
                             <h3>{{ good_answers }}</h3>
-                        </div>
-                        <div class="card-footer">
-                            <a href="{% url 'users:student_subject_selection' 'good_answers' %}" 
-                               class="btn btn-outline-primary w-100">
-                                View
-                            </a>
                         </div>
                     </div>
                 </div>
