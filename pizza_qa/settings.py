@@ -1,7 +1,18 @@
 import os
 from pathlib import Path
 
+from django.contrib.messages import constants as messages
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Map Django's message levels to Bootstrap alert classes
+MESSAGE_TAGS = {
+    messages.DEBUG: 'secondary',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',
+}
 
 SECRET_KEY = 'django-insecure-@&7t%h1p2w!$s0#f5d&v)@k#xr$!y3^b*4j5k6m7n8o9p0q1a'
 DEBUG = True
@@ -42,6 +53,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'qa.context_processors.notifications',
             ],
         },
     },

@@ -4,14 +4,36 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>{{ subject }} Questions</h1>
-        <a href="{% url 'qa:ask_question' subject.id %}" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Ask Question
-        </a>
-        <a href="{% url 'qa:subject_selection' %}" class="btn btn-outline-secondary">
-            Back to Subjects
-        </a>
+        <div>
+            {% if request.user.role == 'student' %}
+            <a href="{% url 'qa:ask_question' subject.id %}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Ask Question
+            </a>
+            {% endif %}
+            <a href="{% url 'qa:subject_selection' %}" class="btn btn-outline-secondary">
+                Back to Subjects
+            </a>
+        </div>
     </div>
-    
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-sm-7">
+            <input type="text" name="q" value="{{ query }}" class="form-control"
+                   placeholder="Search questions by keyword or tag...">
+        </div>
+        <div class="col-sm-3">
+            <select name="status" class="form-select">
+                <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+                <option value="unresolved" {% if status == 'unresolved' %}selected{% endif %}>Unresolved</option>
+                <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="unanswered" {% if status == 'unanswered' %}selected{% endif %}>Unanswered</option>
+            </select>
+        </div>
+        <div class="col-sm-2 d-grid">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Search</button>
+        </div>
+    </form>
+
     {% if questions %}
         <div class="list-group">
             {% for question in questions %}

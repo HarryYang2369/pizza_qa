@@ -14,7 +14,16 @@ urlpatterns = [
     # Answer management
     path('edit-answer/<int:answer_id>/', views.edit_answer, name='edit_answer'),
     path('delete-answer/<int:answer_id>/', views.delete_answer, name='delete_answer'),
-    
+
+    # Follow-up discussion
+    path('question/<int:question_id>/followup/', views.add_followup, name='add_followup'),
+    path('followup/<int:followup_id>/delete/', views.delete_followup, name='delete_followup'),
+
+    # Notifications
+    path('notifications/', views.notifications, name='notifications'),
+    path('notifications/<int:notification_id>/open/', views.open_notification, name='open_notification'),
+    path('notifications/read-all/', views.mark_all_read, name='mark_all_read'),
+
     # Subject management
     path('teacher-subjects/', views.manage_teacher_subjects, name='manage_teacher_subjects'),
     path('student-subjects/', views.manage_student_subjects, name='manage_student_subjects'),

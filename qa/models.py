@@ -116,13 +116,51 @@ class Answer(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    
+
     def __str__(self):
         return f"Answer to {self.question.title}"
-    
+
     def can_edit_delete(self, user):
         """Check if the user can edit or delete this answer."""
         return user == self.user or user.role == 'teacher'
-    
+
+    class Meta:
+        ordering = ['-created_at']
+
+class Followup(models.Model):
+    """A follow-up discussion message on a question. Supports one level of replies."""
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='followups')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, related_name='replies', null=True, blank=True
+    )
+
+    def __str__(self):
+        return f"Follow-up by {self.user} on {self.question.title}"
+
+    def can_edit_delete(self, user):
+        """Check if the user can edit or delete this follow-up."""
+        return user == self.user or user.role == 'teacher'
+
+    class Meta:
+        ordering = ['created_at']
+
+class Notification(models.Model):
+    """An in-app notification for a user (e.g. their question was answered)."""
+    recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='notifications')
+    actor = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name='triggered_notifications',
+        null=True, blank=True
+    )
+    message = models.CharField(max_length=255)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"To {self.recipient}: {self.message}"
+
     class Meta:
         ordering = ['-created_at']

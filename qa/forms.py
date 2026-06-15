@@ -1,5 +1,5 @@
 from django import forms
-from .models import Question, Answer, TeacherSubject, StudentSubject, YearGroup, Subject
+from .models import Question, Answer, Followup, TeacherSubject, StudentSubject, YearGroup, Subject
 from users.models import CustomUser
 
 class QuestionForm(forms.ModelForm):
@@ -21,6 +21,19 @@ class AnswerForm(forms.ModelForm):
         widgets = {
             'text': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your answer here...'}),
         }
+class FollowupForm(forms.ModelForm):
+    class Meta:
+        model = Followup
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={
+                'rows': 2,
+                'placeholder': 'Add to the discussion...',
+                'class': 'form-control',
+            }),
+        }
+        labels = {'text': ''}
+
 class TeacherSubjectForm(forms.ModelForm):
     class Meta:
         model = TeacherSubject
